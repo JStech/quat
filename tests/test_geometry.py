@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import unittest
 from context import quat
+from math import pi
 Q = quat.Quat
 
 class TestArithmetic(unittest.TestCase):
@@ -58,11 +59,19 @@ class TestArithmetic(unittest.TestCase):
         assert(abs(yaw - 0.2) < 1e-6 and abs(pitch - 0.3) < 1e-6 and abs(roll - 0.4) < 1e-6)
 
     def test_log(self):
-        q = Q(0.1808356, 0.1653388, 0.0672043, 0.9671841).log()
-        assert(False)
+        q = Q(2, 3, 4, 1)
+        q.normalize()
+        assert q.log().nearly_equal(Q(0.5152, 0.7728, 1.0304, 0), 1e-4)
 
     def test_exp(self):
-        assert(False)
+        v = [1, 2, 3]
+        n = sum(e**2 for e in v)**.5
+        theta = pi/3
+        v = [theta*e/n for e in v]
+        q = Q(v + [0.])
+        assert abs(q.exp().norm() - 1) < 1e-6
+        assert q.exp().log().nearly_equal(q)
+        assert abs(q.exp().w() - 0.5) < 1e-6
 
 if __name__ == '__main__':
     unittest.main()

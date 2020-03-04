@@ -58,11 +58,12 @@ class Quat:
         return -self + other
 
     def __eq__(self, other):
-        return all(self.q[i] == other.q[i] for i in range(4))
+        return (all( self.q[i] == other.q[i] for i in range(4)) or
+                all(-self.q[i] == other.q[i] for i in range(4)))
 
-    def nearly_equal(self, other):
-        return (all(abs(self.q[i] - other.q[i])<1e-6 for i in range(4)) or
-                all(abs(self.q[i] + other.q[i])<1e-6 for i in range(4)))
+    def nearly_equal(self, other, epsilon=1e-6):
+        return (all(abs(self.q[i] - other.q[i])<epsilon for i in range(4)) or
+                all(abs(self.q[i] + other.q[i])<epsilon for i in range(4)))
 
     def conj(self):
         return Quat(w=self.w(), x=-self.x(), y=-self.y(), z=-self.z())
@@ -147,7 +148,7 @@ class Quat:
         return (yaw, pitch, roll)
 
     def log(self):
-        theta = math.asin(sum(e**2 for e in self.q[:3])**.5)
+        theta = math.acos(self.q[3])
         v = [theta*e/math.sin(theta) for e in self.q[:3]]
         return Quat(v + [0.])
 
